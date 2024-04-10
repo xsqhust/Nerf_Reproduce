@@ -11,17 +11,29 @@ loss_module: lib.train.losses.nerf
 evaluator_module: lib.evaluators.nerf
 visualizer_module: lib.visualizers.nerf
 
+
+
+
+
 task_arg:
     N_rays: 1024 # number of rays per training iteration
     chunk_size: 4096 # chunkify
     white_bkgd: True # use white background
     cascade_samples: [64, 128] # importance sampling, you can set it to [64] for the initial implemetation
+    precrop_iters : 500
+    precrop_frac : 0.5
+    N_samples: 64 # number of coarse samples per ray
+    N_importance: 128 # number of additional fine samples per ray
+    use_viewdirs: True # 加入方向矩阵
 
 network:
     nerf:
-        W: 256 # width
-        D: 8 # depth
+        W_c: 256 # width
+        D_c: 8 # depth
+        W_f: 256 # width
+        D_f: 8 # depth
         V_D: 1 # appearance depth
+        skips: [4]
     xyz_encoder:
         type: 'frequency' # positional encoding
         input_dim: 3
