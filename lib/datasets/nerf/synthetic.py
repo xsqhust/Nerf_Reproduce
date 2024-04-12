@@ -1,3 +1,4 @@
+from typing_extensions import Self
 import torch.utils.data as data
 import numpy as np
 import os
@@ -146,14 +147,16 @@ class Dataset(data.Dataset):
     def __getitem__(self, index):
 
         if self.split == 'train':
+            H=self.H
+            W=self.W
             self.iter_num += 1
-            if self.num_iter_train < self.precrop_iters:
-                dH = int(H//2 * args.precrop_frac)
-                dW = int(W//2 * args.precrop_frac)
+            if self.iter_num< self.precrop_iters:
+                dH = int(H//2 * cfg.task_arg.precrop_frac)
+                dW = int(W//2 * cfg.task_arg.precrop_frac)
                 coords = torch.stack(
                     torch.meshgrid(
-                        torch.linspace(H//2 - dH, H//2 + dH - 1, 2*dH), 
-                        torch.linspace(W//2 - dW, W//2 + dW - 1, 2*dW)
+                        torch.linspace(H//2 - dH, self.H//2 + dH - 1, 2*dH), 
+                        torch.linspace(W//2 - dW, self.W//2 + dW - 1, 2*dW)
                     ), -1)
             else:
                 coords = torch.stack(torch.meshgrid(torch.linspace(0, H-1, H), torch.linspace(0, W-1, W)), -1)  # (H, W, 2)
@@ -164,7 +167,7 @@ class Dataset(data.Dataset):
             select_coords = coords[select_ids].long()
 
 
-            #=======某一个位姿所对应的射线原点、方向以及图像rgb真值==============
+            #=======某一个位姿所对应的射线原点、方向以及图像rgb真值==============self.W
             ray_os = self.rays_o[index]  # (H, W, 3)
             ray_ds = self.rays_d[index]  # (H, W, 3)
             rgbs = self.imgs[index]      # (H, W, 3)
@@ -179,8 +182,17 @@ class Dataset(data.Dataset):
             ray_o = self.rays_o[index].reshape(-1, 3)  # (H * W, 3)
             ray_d = self.rays_d[index].reshape(-1, 3)  # (H * W, 3)
             rgb = self.imgs[index].reshape(-1, 3)      # (H * W, 3)
-        ret = {'ray_o': ray_o, 'ray_d': ray_d, 'rgb': rgb, 'near':self.near, 'far':self.far, 'H':self.H, 'W':self.W}
-
+        ret = {'ray_o': ray_o, 'ray_d': ray_d, 'rgb': rgb, 'near':self.near, 'far':self.far}
+        ret.update({'meta':
+            {
+                'H': self.H,
+                'W': self.W,
+                'ratio': self.input_ratio,
+                'N_rays': self.batch_size,
+                'id': index,
+                'num_imgs': self.num_samples
+            }
+        })
         return ret
 
 
