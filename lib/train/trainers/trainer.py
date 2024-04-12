@@ -50,11 +50,14 @@ class Trainer(object):
             iteration = iteration + 1
 
             batch = to_cuda(batch, self.device)
+            
             batch['step'] = self.global_step
             output, loss, loss_stats, image_stats = self.network(batch)
 
             # training stage: loss; optimizer; scheduler
             loss = loss.mean()
+            loss = loss.double()
+            #some bug existing double or float
             optimizer.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_value_(self.network.parameters(), 40)
