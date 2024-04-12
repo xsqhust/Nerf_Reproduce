@@ -182,17 +182,8 @@ class Dataset(data.Dataset):
             ray_o = self.rays_o[index].reshape(-1, 3)  # (H * W, 3)
             ray_d = self.rays_d[index].reshape(-1, 3)  # (H * W, 3)
             rgb = self.imgs[index].reshape(-1, 3)      # (H * W, 3)
-        ret = {'ray_o': ray_o, 'ray_d': ray_d, 'rgb': rgb, 'near':self.near, 'far':self.far}
-        ret.update({'meta':
-            {
-                'H': self.H,
-                'W': self.W,
-                'ratio': self.input_ratio,
-                'N_rays': self.batch_size,
-                'id': index,
-                'num_imgs': self.num_samples
-            }
-        })
+        ret = {'ray_o': ray_o, 'ray_d': ray_d, 'rgb': rgb, 'near':self.near, 'far':self.far,  'H': self.H,
+                'W': self.W,}
         return ret
 
 
