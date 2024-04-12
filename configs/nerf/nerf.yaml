@@ -25,6 +25,9 @@ task_arg:
     N_samples: 64 # number of coarse samples per ray
     N_importance: 128 # number of additional fine samples per ray
     use_viewdirs: True # 加入方向矩阵
+    lindisp: False
+    perturb: 1
+    raw_noise_std: 0
 
 network:
     nerf:
